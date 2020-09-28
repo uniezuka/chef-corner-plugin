@@ -95,10 +95,12 @@ class ChefsCorner {
 
     private function init_objects() { 
         new CC_Admin($this->plugin_name, $this->version, $this->cc_aq_wc_parser);
+        new CC_Public($this->plugin_name, $this->version);
     }
     
     private function load_files() {
         require_once CHEFS_CORNER_PLUGIN_DIR . 'admin/class-cc-admin.php';
+        require_once CHEFS_CORNER_PLUGIN_DIR . 'public/class-cc-public.php';
         require_once CHEFS_CORNER_PLUGIN_DIR . 'includes/class-cc-aq-wc-parser.php';
     }
 

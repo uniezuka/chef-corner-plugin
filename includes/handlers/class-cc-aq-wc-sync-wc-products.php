@@ -47,16 +47,6 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
             $wc_product_title = $manufacturer->mfrShortName . ' ' . $product->models->mfrModel;
             $wc_product_content = $product->specifications->AQSpecification;
 
-            $wc_product_content .= '<ul>';
-            $wc_product_content .= '<li>Brand: ' . $manufacturer->mfrShortName . '</li>';
-            $wc_product_content .= '<li>MFR #: ' . $product->models->mfrModel . '</li>';
-            $wc_product_content .= '<li>Quantity per Unit: ' . $product->packingData->unitsPerCase . '</li>';
-            $wc_product_content .= '<li>Weight: ' . $product->productDimension->shippingWeight . '</li>';
-            $wc_product_content .= '<li>Depth: ' . $product->productDimension->productDepth . '</li>';
-            $wc_product_content .= '<li>Width: ' . $product->productDimension->productWidth . '</li>';
-            $wc_product_content .= '<li>Height: ' . $product->productDimension->productHeight . '</li>';
-            $wc_product_content .= '</ul>';
-
             foreach($product->documents as $document) {
                 $wc_product_content .= '<br>[custom_button url="' . $document->url . '"]' . $document->name . '[/custom_button]';
             }
@@ -104,7 +94,7 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
                 wp_set_object_terms($post_id, 'simple', 'product_type');
                 
                 $this->update_wc_meta_data($post_id, $product);
-                $this->update_wc_aq_meta_data($post_id, $product);
+                $this->update_wc_aq_meta_data($post_id, $manufacturer, $product);
 
                 if ($term) wp_set_object_terms($post_id, $term->term_id, 'product_cat');
 
@@ -124,7 +114,15 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
             'date_touched' => $this->date_touched);
     }
 
-    private function should_update($post_id, $product, $wc_product_title) {
+    private function should_update($post_id, $manufacturer, $product, $wc_product_title) {
+
+        $aq_product_mfrShortName = get_post_meta($post_id, 'aq_product_mfrShortName', true);
+        if ($manufacturer->mfrShortName != $aq_product_mfrShortName) { 
+            $this->audit('product[' . $wc_product_title . ']');
+            $this->audit('old mfrShortName value: ' . $aq_product_mfrShortName);
+            $this->audit('new mfrShortName value: ' . $manufacturer->mfrShortName);
+            return true;
+        }
 
         $aq_product_mfrModel = get_post_meta($post_id, 'aq_product_mfrModel', true);
         if ($product->models->mfrModel != $aq_product_mfrModel) { 
@@ -300,7 +298,8 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
         return false;
     }
 
-    private function update_wc_aq_meta_data($post_id, $product) {
+    private function update_wc_aq_meta_data($post_id, $manufacturer, $product) {
+        update_post_meta($post_id, 'aq_product_mfrShortName', $manufacturer->mfrShortName);
         update_post_meta($post_id, 'aq_product_id', $product->productId);
         update_post_meta($post_id, 'aq_product_mfrModel', $product->models->mfrModel);
         update_post_meta($post_id, 'aq_product_AQSpecification', $product->specifications->AQSpecification);
