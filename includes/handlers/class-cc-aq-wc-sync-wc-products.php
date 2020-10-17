@@ -44,6 +44,11 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
                 $this->get_term_by_meta(array('meta_key' => 'aq_category_id', 'meta_value' => $product->productCategory->categoryId))
                 : false;
 
+            if (!$term) {
+                $this->log('no category for ' . $manufacturer->mfrShortName . ' ' . $product->models->mfrModel);
+                continue;
+            }
+
             $wc_product_title = $manufacturer->mfrShortName . ' ' . $product->models->mfrModel;
             $wc_product_content = $product->specifications->AQSpecification;
 
@@ -69,7 +74,7 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
                 update_post_meta($post_id, 'aq_date_touched', $this->date_touched);
             }
             else {
-                $should_update = $this->should_update($post->ID, $product, $wc_product_title);
+                $should_update = $this->should_update($post->ID, $manufacturer, $product, $wc_product_title);
 
                 if ($should_update) {
                     $args = array(	   
