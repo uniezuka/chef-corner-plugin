@@ -33,9 +33,11 @@ class CC_AQ_WC_Attach_Images extends CC_AQ_WC_Handler {
             if (!$post) continue;
 
             $post_id = $post->ID;
+            $flag = 0;
 
             foreach($product->pictures as $picture){
-                $this->attach_product_thumbnail($post_id, $picture->url, 1);
+                $this->attach_product_thumbnail($post_id, $picture->url, $flag);
+                if ($flag == 0) $flag = 1;
             }
         }
 

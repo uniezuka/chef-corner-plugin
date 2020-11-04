@@ -52,9 +52,11 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
             $wc_product_title = $manufacturer->mfrShortName . ' ' . $product->models->mfrModel;
             $wc_product_content = $product->specifications->AQSpecification;
 
+            $wc_product_content .= '<div class="aq_documents">';
             foreach($product->documents as $document) {
-                $wc_product_content .= '<br>[custom_button url="' . $document->url . '"]' . $document->name . '[/custom_button]';
+                $wc_product_content .= '<a href="' . $document->url . '" class="aq_document custom_button" target="_blank">' . $document->name . '</a>';
             }
+            $wc_product_content .= '</div>';
 
             $action = '';
 
@@ -75,7 +77,7 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
             }
             else {
                 $should_update = $this->should_update($post->ID, $manufacturer, $product, $wc_product_title);
-
+                
                 if ($should_update) {
                     $args = array(	   
                         'ID' => $post->ID, 
