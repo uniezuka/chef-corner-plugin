@@ -154,6 +154,43 @@ abstract class CC_AQ_WC_Handler {
         return ($sanitized_name == '') ? sanitize_title($category_names[$total - 1]) : $sanitized_name;
     }
 
+    protected function get_image_data($url) {
+        if(ini_get('allow_url_fopen')) {
+            $data = file_get_contents($url);
+
+            return $data;
+        }
+        else {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+
+            $data = curl_exec($ch);
+
+            if(curl_errno($ch)) {
+                $this->log('curl error for url: ' . $url, curl_error($ch));
+                $data = null;
+            }
+            
+            curl_close($ch);
+
+            return $data;
+        }
+    }
+
+    protected function is_attachment_exists($filename) {
+        $attachment_args = array(
+            'posts_per_page' => 1,
+            'post_type'      => 'attachment',
+            'name'           => $filename
+        );
+
+        $attachment_check = new Wp_Query($attachment_args);
+
+        return $attachment_check->have_posts();
+    }
+
     public function set_handler_type($handler_type = '') {
         $this->handler_type = $handler_type;
         return $this;

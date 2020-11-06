@@ -46,6 +46,7 @@ class CC_AQ_WC_Sync_WC_Categories extends CC_AQ_WC_Handler {
                 if ($term) {
                     wp_update_term($term->term_id, 'product_cat', array('name' => $category_name));
                     $parent_term_id = $term->term_id;
+                    $this->attach_thumbnail($term->term_id, $ancestral_aq_category);
                     continue;
                 }
 
@@ -60,6 +61,7 @@ class CC_AQ_WC_Sync_WC_Categories extends CC_AQ_WC_Handler {
                 if ($term) {
                     add_term_meta($term['term_id'], 'aq_category_id', $ancestral_aq_category->categoryId);
                     $parent_term_id = $term['term_id'];
+                    $this->attach_thumbnail($term['term_id'], $ancestral_aq_category);
                     $this->audit('new category has been added: ' . $category_name);
                 }
             }
@@ -77,6 +79,53 @@ class CC_AQ_WC_Sync_WC_Categories extends CC_AQ_WC_Handler {
         else {
             $date = date("Y-m-d h:i:sa");
             $this->data = array('manufacturer_ids' => $manufacturer_ids, 'manufacturer_id' => $manufacturer_ids[0], 'date_touched' => $date);
+        }
+    }
+
+    private function attach_thumbnail($term_id, $aq_category) {
+        if (isset($aq_category->picture)) {
+            if ($aq_category->picture->mediaType != 'picture') return;
+
+            $image_url = $aq_category->picture->url;
+            $url_array = explode('/', $image_url);
+            $image_id = $url_array[count($url_array)-2];
+
+            $path_parts = pathinfo(basename($image_url, '?' . parse_url($image_url, PHP_URL_QUERY)));
+            $image_name = 'aq_cat_' . $image_id . '.' . $path_parts['extension'];
+
+            if ($this->is_attachment_exists($image_name)) return;
+
+            $image_data = $this->get_image_data($image_url);
+
+            $upload_dir = wp_upload_dir();
+            $filename = basename($image_name); 
+
+            if(wp_mkdir_p($upload_dir['path']))
+                $file = $upload_dir['path'] . '/' . $filename;
+            else
+                $file = $upload_dir['basedir'] . '/' . $filename;
+
+            file_put_contents($file, $image_data);
+            $wp_filetype = wp_check_filetype($filename, null);
+            
+            $attachment = array(
+                'post_mime_type' => $wp_filetype['type'],
+                'post_title' => sanitize_file_name( $filename ),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+    
+            $attach_id = wp_insert_attachment($attachment, $file);
+    
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+            $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+            wp_update_attachment_metadata( $attach_id, $attach_data );
+
+            update_term_meta( $term_id, 'thumbnail_id', $attach_id );
+
+            $this->log('image attached to product category with id: ' . $term_id);
+            $this->audit('image attached to product category with id: ' . $term_id);
         }
     }
 

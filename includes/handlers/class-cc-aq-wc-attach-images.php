@@ -143,18 +143,6 @@ class CC_AQ_WC_Attach_Images extends CC_AQ_WC_Handler {
         $this->audit('image attached to post with id: ' . $post_id);
     }
 
-    private function is_attachment_exists($filename) {
-        $attachment_args = array(
-            'posts_per_page' => 1,
-            'post_type'      => 'attachment',
-            'name'           => $filename
-        );
-
-        $attachment_check = new Wp_Query($attachment_args);
-
-        return $attachment_check->have_posts();
-    }
-
     private function get_products_data() {
         $page = !empty($this->data['page']) ? (int) $this->data['page'] : 1;
 
@@ -163,31 +151,6 @@ class CC_AQ_WC_Attach_Images extends CC_AQ_WC_Handler {
         if ($json_data) {
             $this->total_pages = $json_data->total_pages;
             $this->products = $json_data->data;
-        }
-    }
-
-    private function get_image_data($url) {
-        if(ini_get('allow_url_fopen')) {
-            $data = file_get_contents($url);
-
-            return $data;
-        }
-        else {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-
-            $data = curl_exec($ch);
-
-            if(curl_errno($ch)) {
-                $this->log('curl error for url: ' . $url, curl_error($ch));
-                $data = null;
-            }
-            
-            curl_close($ch);
-
-            return $data;
         }
     }
 
