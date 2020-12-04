@@ -99,35 +99,17 @@ class CC_AQ_WC_Attach_Images extends CC_AQ_WC_Handler {
 
         $path_parts = pathinfo(basename($image_url, '?' . parse_url($image_url, PHP_URL_QUERY)));
         $image_name = 'aq_' . $image_id . '.' . $path_parts['extension'];
-
-        if ($this->is_attachment_exists($image_name)) return;
-
-        $image_data = $this->get_image_data($image_url);
-
-        $upload_dir = wp_upload_dir();
         $filename = basename($image_name); 
-        
-        if(wp_mkdir_p($upload_dir['path']))
-            $file = $upload_dir['path'] . '/' . $filename;
-        else
-            $file = $upload_dir['basedir'] . '/' . $filename;
 
-        file_put_contents($file, $image_data);
-        $wp_filetype = wp_check_filetype($filename, null);
-        
-        $attachment = array(
-            'post_mime_type' => $wp_filetype['type'],
-            'post_title' => sanitize_file_name( $filename ),
-            'post_content' => '',
-            'post_status' => 'inherit'
-        );
+        $attachment = $this->get_attachment($filename);
+        $attach_id = 0;
 
-        $attach_id = wp_insert_attachment($attachment, $file, $post_id);
-
-        require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
-        wp_update_attachment_metadata( $attach_id, $attach_data );
+        if ($attachment) {
+            $attach_id = $attachment->ID;
+        }
+        else {
+            $attach_id = $this->create_attachment($image_url, $filename, $post_id);
+        }
 
         if( $flag == 0) {
             set_post_thumbnail($post_id, $attach_id);
@@ -139,8 +121,8 @@ class CC_AQ_WC_Attach_Images extends CC_AQ_WC_Handler {
             update_post_meta($post_id, '_product_image_gallery', $attach_id_array);
         }
 
-        $this->log('image attached to post with id: ' . $post_id);
-        $this->audit('image attached to post with id: ' . $post_id);
+        //$this->log('image attached to post with id: ' . $post_id);
+        //$this->audit('image attached to post with id: ' . $post_id);
     }
 
     private function get_products_data() {

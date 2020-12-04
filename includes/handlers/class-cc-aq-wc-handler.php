@@ -179,6 +179,49 @@ abstract class CC_AQ_WC_Handler {
         }
     }
 
+    protected function create_attachment($image_url, $filename, $post_id) {
+        $image_data = $this->get_image_data($image_url);
+
+        $upload_dir = wp_upload_dir();
+        
+        if(wp_mkdir_p($upload_dir['path']))
+            $file = $upload_dir['path'] . '/' . $filename;
+        else
+            $file = $upload_dir['basedir'] . '/' . $filename;
+
+        file_put_contents($file, $image_data);
+        $wp_filetype = wp_check_filetype($filename, null);
+        
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => sanitize_file_name( $filename ),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment($attachment, $file, $post_id);
+
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+        $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+        wp_update_attachment_metadata( $attach_id, $attach_data );
+
+        $this->log('image uploaded: ' . $filename);
+
+        return $attach_id;
+    }
+
+    protected function get_attachment($filename) {
+        $args = array(
+            'post_type' => 'attachment',
+            'name' => sanitize_title($filename),
+            'posts_per_page' => 1
+          );
+
+        $posts = get_posts( $args );
+        return $posts ? array_pop($posts) : null;
+    }
+
     protected function is_attachment_exists($filename) {
         $attachment_args = array(
             'posts_per_page' => 1,
