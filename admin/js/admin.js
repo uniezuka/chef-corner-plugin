@@ -8,6 +8,9 @@
             if (new_rule_command === 'rename') {
                 template_html = $('#rename_clone').clone(true);
             }
+            else if (new_rule_command === 'move_products') {
+                template_html = $('#move_product_clone').clone(true);
+            }
             else if (new_rule_command === 'exclude') {
                 template_html = $('#exclude_clone').clone(true);
             }

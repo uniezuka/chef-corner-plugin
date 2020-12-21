@@ -9,6 +9,8 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
     private $date_touched;
     private $total_pages = 0;
 
+    private $ruleset = array();
+
     public function handle() {
         $date = date("Y-m-d h:i:sa");
         $manufacturer_ids = $this->data['manufacturer_ids'];
@@ -16,6 +18,8 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
         $date_touched = (isset($this->data['date_touched'])) ? $this->data['date_touched'] : $date;
 
         if (!isset($manufacturer_id)) return;
+
+        $this->ruleset = get_option('chefs_corner_category_ruleset');
 
         $this->manufacturer_id = $manufacturer_id;
         $this->manufacturer_ids = $manufacturer_ids;
@@ -40,9 +44,7 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
 
             $manufacturer = $this->get_manufacturer($product->mfrId);
 
-            $term = (isset($product->productCategory)) ?
-                $this->get_term_by_meta(array('meta_key' => 'aq_category_id', 'meta_value' => $product->productCategory->categoryId))
-                : false;
+            $term = $this->get_product_term($product);
 
             if (!$term) {
                 $this->log('no category for ' . $manufacturer->mfrShortName . ' ' . $product->models->mfrModel);
@@ -77,7 +79,8 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
             }
             else {
                 $should_update = $this->should_update($post->ID, $manufacturer, $product, $wc_product_title);
-                
+                $post_id = $post->ID;
+
                 if ($should_update) {
                     $args = array(	   
                         'ID' => $post->ID, 
@@ -91,6 +94,8 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
                 update_post_meta($post->ID, 'aq_date_touched', $this->date_touched);
             }
 
+            $this->set_product_category($term, $post_id);
+
             if ($action != '') {
                 if ($post_id === 0) {
                     $this->log('unable to process product: ', $product);
@@ -102,8 +107,6 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
                 
                 $this->update_wc_meta_data($post_id, $product);
                 $this->update_wc_aq_meta_data($post_id, $manufacturer, $product);
-
-                if ($term) wp_set_object_terms($post_id, $term->term_id, 'product_cat');
 
                 if ($action == 'create') {
                     $this->audit('product was created: ' . $wc_product_title . ' [' . $product->productId . ']');
@@ -119,6 +122,43 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
             'manufacturer_id' => $this->manufacturer_id,
             'page' => $page,
             'date_touched' => $this->date_touched);
+    }
+
+    private function set_product_category($term, $post_id) {
+        $product_terms = get_the_terms($post_id, 'product_cat');
+
+        foreach($product_terms as $product_term){
+            wp_remove_object_terms($post_id, $product_term->term_id, 'product_cat');
+        }
+
+        if ($term) wp_set_object_terms($post_id, $term->term_id, 'product_cat');
+    }
+
+    private function get_product_term($product) {
+        if (!isset($product->productCategory)) return false;
+
+        $category_id = $this->get_aq_moved_product_category_id($product->productCategory);
+
+        return $this->get_term_by_meta(array('meta_key' => 'aq_category_id', 'meta_value' => $category_id));
+    }
+
+    private function get_aq_moved_product_category_id($productCategory) {
+        $rules = array_filter($this->ruleset, function($data) {
+            return $data->rule_type == 'move_products';
+        });
+
+        if (count($rules) <= 0) return $productCategory->categoryId;
+
+        $new_product_id = $productCategory->categoryId;
+
+        foreach($rules as $rule) {
+            if ($rule->from_category_id == $productCategory->categoryId) {
+                $new_product_id = $rule->to_category_id;
+                break;
+            }
+        }
+
+        return $new_product_id;
     }
 
     private function should_update($post_id, $manufacturer, $product, $wc_product_title) {

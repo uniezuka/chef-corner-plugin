@@ -44,7 +44,7 @@ class CC_AQ_WC_Sync_WC_Categories extends CC_AQ_WC_Handler {
                 }
 
                 if ($term) {
-                    wp_update_term($term->term_id, 'product_cat', array('name' => $category_name));
+                    wp_update_term($term->term_id, 'product_cat', array('name' => $category_name, 'slug' => sanitize_title( $category_name )));
                     $parent_term_id = $term->term_id;
                     $this->attach_thumbnail($term->term_id, $ancestral_aq_category);
                     continue;

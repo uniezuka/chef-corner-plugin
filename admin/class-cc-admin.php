@@ -21,7 +21,12 @@ class CC_Admin {
     private function init_hooks() {
         add_action('admin_menu', array($this, 'add_admin_menu')); 
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
         add_action('admin_enqueue_scripts', array($this, 'enqueue_js'));
+    }
+
+    public function enqueue_styles($hook) {
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/style.css', array(), $this->version, 'all' );
     }
 
     public function enqueue_js($hook) {
@@ -90,6 +95,21 @@ class CC_Admin {
                     'rule_type' => 'rename', 
                     'old_category_name' => wp_unslash($value),
                     'new_category_name' => wp_unslash($new_category_names[$key])
+                );
+                
+                $category_ruleset[] = $ruleset;
+            }
+        }
+
+        if (isset($_POST["from_category_id"])) {
+            $from_category_ids = $_POST["from_category_id"];
+            $to_category_ids = $_POST["to_category_id"];
+
+            foreach($from_category_ids as $key => $value) {
+                $ruleset = (object) array(
+                    'rule_type' => 'move_products', 
+                    'from_category_id' => wp_unslash($value),
+                    'to_category_id' => wp_unslash($to_category_ids[$key])
                 );
                 
                 $category_ruleset[] = $ruleset;

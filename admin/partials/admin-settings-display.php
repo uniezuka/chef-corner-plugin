@@ -10,6 +10,14 @@
             <input type="button" value="Remove" class="remove_template" /> 
         </div>
 
+        <div id="move_product_clone" class="template_clone row form-group">
+            <h4>Move Products from one category to another</h4>
+            <label>From AQ Category ID <input type="text" class="regular-text" name="from_category_id[]" /></label>
+            <label>To AQ Category Name <input type="text" class="regular-text" name="to_category_id[]" /></label>
+            <input type="button" value="Remove" class="remove_template" /> 
+            <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
+        </div>
+
         <div id="exclude_clone" class="template_clone row form-group">
             <h4>Exclude an AQ category</h4>
             <label>AQ Category ID <input type="text" class="regular-text" name="exclude_category_id[]" /></label>
@@ -52,6 +60,7 @@
             <strong>Add new rules</strong> 
             <select name="new_rules" id="new_rules">
                 <option value="rename">Rename</option>
+                <option value="move_products">Move Products</option>
                 <option value="exclude">Exclude</option>
             </select> 
             <button type="button" id="new_ruleset" class="page-title-action">Add</button>
@@ -69,6 +78,16 @@
                         <label>Old AQ Category Name <input type="text" class="regular-text" name="old_category_name[]" value="<?php echo esc_attr($rule->old_category_name); ?>" /></label>
                         <label>New AQ Category Name <input type="text" class="regular-text" name="new_category_name[]" value="<?php echo esc_attr($rule->new_category_name); ?>" /></label>
                         <input type="button" value="Remove" class="remove_template" /> 
+                    </div>
+                <?php } ?>
+
+                <?php if ($rule->rule_type == 'move_products') { ?>
+                    <div class="template_clone row form-group">
+                        <h4>Move Products from one category to another</h4>
+                        <label>From AQ Category ID <input type="text" class="regular-text" name="from_category_id[]" value="<?php echo esc_attr($rule->from_category_id); ?>" /></label>
+                        <label>To AQ Category Name <input type="text" class="regular-text" name="to_category_id[]" value="<?php echo esc_attr($rule->to_category_id); ?>" /></label>
+                        <input type="button" value="Remove" class="remove_template" /> 
+                        <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
                     </div>
                 <?php } ?>
 
