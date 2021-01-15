@@ -11,9 +11,9 @@
         </div>
 
         <div id="move_product_clone" class="template_clone row form-group">
-            <h4>Move Products from one category to another</h4>
+            <h4>Move Products from one AQ category to another AQ category</h4>
             <label>From AQ Category ID <input type="text" class="regular-text" name="from_category_id[]" /></label>
-            <label>To AQ Category Name <input type="text" class="regular-text" name="to_category_id[]" /></label>
+            <label>To AQ Category ID <input type="text" class="regular-text" name="to_category_id[]" /></label>
             <input type="button" value="Remove" class="remove_template" /> 
             <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
         </div>
@@ -83,9 +83,9 @@
 
                 <?php if ($rule->rule_type == 'move_products') { ?>
                     <div class="template_clone row form-group">
-                        <h4>Move Products from one category to another</h4>
+                        <h4>Move Products from one AQ category to another AQ category</h4>
                         <label>From AQ Category ID <input type="text" class="regular-text" name="from_category_id[]" value="<?php echo esc_attr($rule->from_category_id); ?>" /></label>
-                        <label>To AQ Category Name <input type="text" class="regular-text" name="to_category_id[]" value="<?php echo esc_attr($rule->to_category_id); ?>" /></label>
+                        <label>To AQ Category ID <input type="text" class="regular-text" name="to_category_id[]" value="<?php echo esc_attr($rule->to_category_id); ?>" /></label>
                         <input type="button" value="Remove" class="remove_template" /> 
                         <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
                     </div>

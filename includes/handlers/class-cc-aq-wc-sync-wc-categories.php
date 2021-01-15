@@ -24,7 +24,6 @@ class CC_AQ_WC_Sync_WC_Categories extends CC_AQ_WC_Handler {
             $ancestral_aq_categories = $this->get_ancestral_aq_categories($category_id, $this->aq_categories);
 
             $parent_term_id = 0;
-            $category_names = array();
             $is_excluded = false;
 
             foreach($ancestral_aq_categories as $ancestral_aq_category) {
