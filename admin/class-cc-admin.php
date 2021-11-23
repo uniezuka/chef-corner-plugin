@@ -116,6 +116,21 @@ class CC_Admin {
             }
         }
 
+        if (isset($_POST["from_aq_category_id"])) {
+            $from_category_ids = $_POST["from_aq_category_id"];
+            $to_category_slugs = $_POST["to_wc_category_slug"];
+
+            foreach($from_category_ids as $key => $value) {
+                $ruleset = (object) array(
+                    'rule_type' => 'move_products_aq_to_wc', 
+                    'from_category_id' => wp_unslash($value),
+                    'to_category_slug' => wp_unslash($to_category_slugs[$key])
+                );
+                
+                $category_ruleset[] = $ruleset;
+            }
+        }
+
         if (isset($_POST["exclude_category_id"])) {
             $exclude_category_id = $_POST["exclude_category_id"];
 

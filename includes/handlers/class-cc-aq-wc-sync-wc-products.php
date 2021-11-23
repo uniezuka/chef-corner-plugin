@@ -139,7 +139,34 @@ class CC_AQ_WC_Sync_WC_Products extends CC_AQ_WC_Handler {
 
         $category_id = $this->get_aq_moved_product_category_id($product->productCategory);
 
+        $term = $this->get_wc_moved_category($category_id);
+
+        if ($term) return $term;
+
         return $this->get_term_by_meta(array('meta_key' => 'aq_category_id', 'meta_value' => $category_id));
+    }
+
+    private function get_wc_moved_category($category_id) {
+        $rules = array_filter($this->ruleset, function($data) {
+            return $data->rule_type == 'move_products_aq_to_wc';
+        });
+
+        if (count($rules) <= 0) return false;
+
+        $to_category_slug = '';
+
+        foreach($rules as $rule) {
+            if ($rule->from_category_id == $category_id) {
+                $to_category_slug = $rule->to_category_slug;
+                break;
+            }
+        }
+
+        if ($to_category_slug == '') return false;
+
+        $term = get_term_by('slug', $to_category_slug, 'product_cat');
+
+        return $term;
     }
 
     private function get_aq_moved_product_category_id($productCategory) {

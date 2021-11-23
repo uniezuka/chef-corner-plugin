@@ -10,10 +10,18 @@
             <input type="button" value="Remove" class="remove_template" /> 
         </div>
 
-        <div id="move_product_clone" class="template_clone row form-group">
+        <div id="move_aq_to_aq_clone" class="template_clone row form-group">
             <h4>Move Products from one AQ category to another AQ category</h4>
             <label>From AQ Category ID <input type="text" class="regular-text" name="from_category_id[]" /></label>
             <label>To AQ Category ID <input type="text" class="regular-text" name="to_category_id[]" /></label>
+            <input type="button" value="Remove" class="remove_template" /> 
+            <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
+        </div>
+
+        <div id="move_aq_to_wc_clone" class="template_clone row form-group">
+            <h4>Move Products from one AQ category to Woocommerce category</h4>
+            <label>From AQ Category ID <input type="text" class="regular-text" name="from_aq_category_id[]" /></label>
+            <label>To WC Category Slug <input type="text" class="regular-text" name="to_wc_category_slug[]" /></label>
             <input type="button" value="Remove" class="remove_template" /> 
             <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
         </div>
@@ -54,13 +62,14 @@
             </tr>
         </table>
 
-        <h2>Category Ruleset<h2>
+        <h2>Rulesets<h2>
 
         <div>
             <strong>Add new rules</strong> 
             <select name="new_rules" id="new_rules">
                 <option value="rename">Rename</option>
-                <option value="move_products">Move Products</option>
+                <option value="move_aq_to_aq">Move Products (AQ Categories to AQ Categories)</option>
+                <option value="move_aq_to_wc">Move Products (AQ Categories to WC Categories)</option>
                 <option value="exclude">Exclude</option>
             </select> 
             <button type="button" id="new_ruleset" class="page-title-action">Add</button>
@@ -86,6 +95,16 @@
                         <h4>Move Products from one AQ category to another AQ category</h4>
                         <label>From AQ Category ID <input type="text" class="regular-text" name="from_category_id[]" value="<?php echo esc_attr($rule->from_category_id); ?>" /></label>
                         <label>To AQ Category ID <input type="text" class="regular-text" name="to_category_id[]" value="<?php echo esc_attr($rule->to_category_id); ?>" /></label>
+                        <input type="button" value="Remove" class="remove_template" /> 
+                        <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
+                    </div>
+                <?php } ?>
+                
+                <?php if ($rule->rule_type == 'move_products_aq_to_wc') { ?>
+                    <div class="template_clone row form-group">
+                        <h4>Move Products from one AQ category to Woocommerce category</h4>
+                        <label>From AQ Category ID <input type="text" class="regular-text" name="from_aq_category_id[]" value="<?php echo esc_attr($rule->from_category_id); ?>" /></label>
+                        <label>To WC Category Slug <input type="text" class="regular-text" name="to_wc_category_slug[]" value="<?php echo esc_attr($rule->to_category_slug); ?>" /></label>
                         <input type="button" value="Remove" class="remove_template" /> 
                         <p class="description">The AQ Category Id. Refer to the AQ Category API response.</p>
                     </div>
