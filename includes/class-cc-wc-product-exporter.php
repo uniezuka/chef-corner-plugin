@@ -1,6 +1,6 @@
 <?php
 
-class CC_AQ_WC_Product_Exporter {
+class CC_WC_Product_Exporter {
     private $filename = 'cc-wc-export.csv';
     private $limit = 50;
     private $total_rows = 0;

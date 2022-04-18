@@ -49,7 +49,7 @@ class ChefsCorner {
 
     protected $plugin_name;
     protected $version;
-    protected $cc_aq_wc_parser = null;
+    protected $cc_wc_parser = null;
 
     public function __construct($version) {
         $this->plugin_name = 'chefs-corner';
@@ -61,7 +61,7 @@ class ChefsCorner {
         add_action('woocommerce_init', array(&$this, 'woocommerce_loaded'));
         add_action('plugins_loaded', array(&$this, 'plugins_loaded'));
 
-        add_action('cc_migrate_from_aq', array(&$this, 'migrate'));
+        add_action('cc_migrate', array(&$this, 'migrate'));
 
         add_action('plugins_loaded', array($this, 'init'));
     }
@@ -69,17 +69,17 @@ class ChefsCorner {
     public function init() {
 		$this->load_files();
 
-		$this->cc_aq_wc_parser = new CC_AQ_WC_Parser();
+		$this->cc_wc_parser = new CC_WC_Parser();
 	}
 
     public function activate() {
-        require_once plugin_dir_path( __FILE__ ) . 'includes/class-cc-aq-wc-activator.php';
-        CC_AQ_WC_Activator::activate();
+        require_once plugin_dir_path( __FILE__ ) . 'includes/class-cc-wc-activator.php';
+        CC_WC_Activator::activate();
     }
 
     public function deactivate() {
-        require_once plugin_dir_path( __FILE__ ) . 'includes/class-cc-aq-wc-deactivator.php';
-        CC_AQ_WC_Deactivator::deactivate();
+        require_once plugin_dir_path( __FILE__ ) . 'includes/class-cc-wc-deactivator.php';
+        CC_WC_Deactivator::deactivate();
     }
 
     public function woocommerce_loaded() {
@@ -87,21 +87,21 @@ class ChefsCorner {
     }
 
     public function migrate() {
-        $this->cc_aq_wc_parser->data(array('handler_type' => 'init'))->dispatch();
+        $this->cc_wc_parser->data(array('handler_type' => 'init'))->dispatch();
     }
 
     public function plugins_loaded() {
     }
 
     private function init_objects() { 
-        new CC_Admin($this->plugin_name, $this->version, $this->cc_aq_wc_parser);
-        new CC_Public($this->plugin_name, $this->version);
+        new CC_Admin($this->plugin_name, $this->version, $this->cc_wc_parser);
+        //new CC_Public($this->plugin_name, $this->version);
     }
     
     private function load_files() {
         require_once CHEFS_CORNER_PLUGIN_DIR . 'admin/class-cc-admin.php';
         require_once CHEFS_CORNER_PLUGIN_DIR . 'public/class-cc-public.php';
-        require_once CHEFS_CORNER_PLUGIN_DIR . 'includes/class-cc-aq-wc-parser.php';
+        require_once CHEFS_CORNER_PLUGIN_DIR . 'includes/class-cc-wc-parser.php';
     }
 
     public static function instance($version) {

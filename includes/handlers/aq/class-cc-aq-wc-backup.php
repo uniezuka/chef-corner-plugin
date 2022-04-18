@@ -4,7 +4,7 @@ class CC_AQ_WC_Backup extends CC_AQ_WC_Handler {
     protected $handler_type = 'create_woocommerce_backup';
 
     public function __construct($next_handler) {
-        require_once CHEFS_CORNER_PLUGIN_DIR . 'includes/class-cc-aq-wc-product-exporter.php';
+        require_once CHEFS_CORNER_PLUGIN_DIR . 'includes/class-cc-wc-product-exporter.php';
 
         parent::__construct($next_handler);
     }
@@ -18,7 +18,7 @@ class CC_AQ_WC_Backup extends CC_AQ_WC_Handler {
         if ($step == 1)
             $this->log('creating WooCommerce products backup...');
 
-        $exporter = new CC_AQ_WC_Product_Exporter();
+        $exporter = new CC_WC_Product_Exporter();
         $exporter->set_filename(wp_unslash($file_name));
         $exporter->set_page($step);
         $exporter->export();

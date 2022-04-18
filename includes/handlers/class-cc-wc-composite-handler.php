@@ -1,6 +1,6 @@
 <?php 
 
-class CC_AQ_WC_Composite_Handler extends CC_AQ_WC_Handler {
+class CC_WC_Composite_Handler extends CC_WC_Go_Positive_Handler {
     private $handlers = array();
 
     public function add($handler) {
